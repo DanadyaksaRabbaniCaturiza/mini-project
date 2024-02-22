@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:andromeda1@localhost:3306/db_webtiket"
+}
+
+enum Role {
+  user
+  organizer
+}
+
+enum Type {
+  paid
+  free
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role?    @default(user)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event[]
+}
+
+model Event {
+  id            Int             @id @default(autoincrement())
+  image_url     String?
+  name          String
+  description   String?
+  date          String
+  location      String
+  type          Type?
+  price         Decimal
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  EventCategory EventCategory[]
+  User          User?           @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId        Int?
+}
+
+model EventCategory {
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  eventId    Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categoryId Int
+
+  @@id([eventId, categoryId])
+}
+
+model Category {
+  id            Int             @id @default(autoincrement())
+  name          String
+  description   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  EventCategory EventCategory[]
+}
